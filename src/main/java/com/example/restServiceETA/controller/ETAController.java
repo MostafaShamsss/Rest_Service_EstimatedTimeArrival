@@ -1,37 +1,37 @@
 package com.example.restServiceETA.controller;
 
-
-import com.example.restServiceETA.model.ETA;
 import com.example.restServiceETA.model.LocationDTO;
-import com.example.restServiceETA.repository.ETARepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 
 @RestController
 public class ETAController
 {
-    @Autowired
-    private ETARepository etaRepository;
+
 
     @PostMapping("/ETA")
-    public ResponseEntity<ETA> getEstimate(@RequestBody LocationDTO location) {
+    public String getEstimate(@RequestBody LocationDTO location) {
         double driverLocationLat = location.getDriverLatitude();
         double driverLocationLong = location.getDriverLongitude();
         double userLocationLat = location.getUserLatitude();
         double userLocationLong = location.getUserLongitude();
 
         float distance = calculateDistance(driverLocationLat, driverLocationLong, userLocationLat, userLocationLong);
+        //time = distance / speed       ||       speed = 60km/hr
+        float speed = 60;
+        float time = (distance*1000)/(speed*60);
+        LocalDateTime currentTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
+        String formattedTime = currentTime.format(formatter);
+        LocalTime timeFormatted = LocalTime.parse(formattedTime, formatter);
+        float minutes = timeFormatted.getMinute();
+        float minuteSummation = time + minutes;
 
 
-        ETA eta = new ETA();
-        eta.setEstimated_time_arrival("15 minutes");
-
-        ETA savedETA = etaRepository.save(eta);
-
-        return ResponseEntity.ok(savedETA);
+        return (formattedTime.substring(4) + String.valueOf(minuteSummation));
     }
 
 
