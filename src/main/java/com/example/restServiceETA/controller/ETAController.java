@@ -15,7 +15,7 @@ public class ETAController {
 
 
     @PostMapping("/ETA")
-    public String getEstimate(@RequestBody LocationDTO location) {
+    public ResponseEntity<String> getEstimate(@RequestBody LocationDTO location) {
         try {
             double driverLocationLat = location.getDriverLatitude();
             double driverLocationLong = location.getDriverLongitude();
@@ -55,10 +55,11 @@ public class ETAController {
             // Format the updated time
             String updatedTime = String.format("%02d:%02d", totalHours, totalMinutes);
 
-            return updatedTime;
+            // Return the updated time as JSON
+            return ResponseEntity.ok("{\"estimatedTime\": \"" + updatedTime + "\"}");
         } catch (Exception e) {
             String errorMessage = e.getMessage();
-            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("Error: " + errorMessage).toString();
+            return ResponseEntity.status(HttpStatus.UNPROCESSABLE_ENTITY).body("{\"error\": \"" + errorMessage + "\"}");
         }
     }
 
